@@ -13,6 +13,14 @@ Unlike large frameworks, PeasyGUI focuses on essential widgets and properties �
 
 ---
 
+## Screenshots
+
+![Designer Mode with all controls and some styles set](resources/all_controls.png)
+![Example App: Imageviewer](resources/imageviewer.png)
+![Example App: Give prefixes for files](resources/prefixer.png)
+
+---
+
 ## Features
 
 - Cross-platform: macOS (≥12.0), Linux, Windows
@@ -65,6 +73,12 @@ Extract the release folder and start the executable. Designer mode opens by defa
 ### Windows and macOS Security Prompts
 
 When launching PeasyGUI for the first time, you may see warnings such as "macOS cannot verify the developer" or on Windows "The publisher could not be verified" or "Microsoft Defender SmartScreen prevented an unrecognized app from starting".
+
+![Windows Batch Warning](resources/win11_batch.png)
+![Windows EXE Warning](resources/win11_exe.png)
+
+![macOS Binary Warning](resources/mac_bin.png)
+![macOS Unknown Developer Warning](resources/mac_developer.png)
 
 PeasyGUI is an open-source project developed by an independent programmer and distributed for free. I have not paid for Apple’s or Microsoft’s yearly developer verification programs — which currently cost USD 99 per year for Apple and around USD 200–400 per year for Microsoft.
 
