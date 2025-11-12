@@ -1,0 +1,519 @@
+Connecting with PeasyGUI                                                    
+========================                                                    
+                                                                            
+Overview                                                                    
+--------                                                                    
+PeasyGUI is a lightweight graphical user interface that can be controlled   
+by your own program. Your program and PeasyGUI communicate using a simple   
+text-based protocol over TCP.                                               
+                                                                            
+When PeasyGUI is started with --protocol=tcp, it opens a small TCP server   
+that listens for requests from your application. Your program connects as a 
+client, sends requests and receives clear, text-based replies in return.    
+                                                                            
+All communication happens quickly and reliably, so your application can     
+update the GUI or react to user actions almost instantly.                   
+                                                                            
+  YourApp            PeasyGUI                                               
+ ┌────────┐         ┌────────┐                                              
+ │        │         │        │                                              
+ │        │ Request │        │                                              
+ │        ├────────►│        │                                              
+ │        │         │        │                                              
+ │ Client │         │ Server │                                              
+ │        │         │        │                                              
+ │        │  Reply  │        │                                              
+ │        │◄────────┤        │                                              
+ │        │         │        │                                              
+ └────────┘         └────────┘                                              
+                                                                            
+There are four types of requests:                                           
+- events?                                                                   
+- get                                                                       
+- set                                                                       
+- new.                                                                      
+                                                                            
+The last two (set and new) do not return information but simply reply with  
+either OK or an error message in the form ERROR`...`. Multiple set or new   
+requests can be combined into a single TCP packet.                          
+                                                                            
+All elements in a request are separated by a backtick (`). Be careful not   
+to confuse the backtick with an apostrophe (') or accent (´).               
+                                                                            
+                                                                            
+The 'events?' Request                                                       
+---------------------                                                       
+The events? request has no parameters. It returns all active events that    
+have occurred since the last events? query. Each event is followed by a     
+line break.                                                                 
+If an event includes additional information (such as mouse coordinates),    
+that data is appended directly after the event name.                        
+                                                                            
+Example:                                                                    
+If the button named ok_button is clicked, then the window is resized and    
+finally closed, PeasyGUI will respond with:                                 
+ok_button`Clicked`                                                          
+Window`Resized`346,549`                                                     
+Window`Resized`370,566`                                                     
+Window`Closed`                                                              
+                                                                            
+If no events occurred in the meantime, the reply will be:                   
+NONE                                                                        
+                                                                            
+                                                                            
+The 'get' Request                                                           
+-----------------                                                           
+Format:                                                                     
+get`ControlName`Property`                                                   
+                                                                            
+Example:                                                                    
+get`TextBox_0`Text`                                                         
+                                                                            
+If the user has entered 'Hello, World!' into the text box, PeasyGUI will    
+respond with:                                                               
+OK`Hello, World!`                                                           
+                                                                            
+If a control contains multiple entries, the property name begins with       
+'Entire', for example:                                                      
+get`ListBox_7`EntireTexts`                                                  
+                                                                            
+PeasyGUI will respond with:                                                 
+OK`dog`cat`mouse`                                                           
+                                                                            
+                                                                            
+The 'set' Request                                                           
+-----------------                                                           
+Format:                                                                     
+set`ControlName`Property`Value`                                             
+                                                                            
+Example:                                                                    
+set`TextBox_0`Text`42`                                                      
+                                                                            
+The 'Entire' prefix can also be used here to assign multiple values, for    
+example:                                                                    
+set`MyListBox`EntireTexts`a`bc`def`                                         
+                                                                            
+This will clear the ListBox and then fill it with the following entries:    
+a                                                                           
+bc                                                                          
+def                                                                         
+                                                                            
+                                                                            
+The 'new' Request                                                           
+-----------------                                                           
+Format:                                                                     
+new`ControlName`Type`ControlType`                                           
+                                                                            
+Example:                                                                    
+new`cancel_button`Type`Button`                                              
+                                                                            
+This adds a new control of the specified type to the GUI. The control will  
+have default properties, which can then be modified using set requests.     
+                                                                            
+                                                                            
+File-Based Communication                                                    
+------------------------                                                    
+The file-based communication mode (--protocol=filebased) works but is       
+significantly slower than TCP. It was originally intended as an alternative 
+for corporate environments where running a local server might not be        
+allowed.                                                                    
+                                                                            
+However, because it relies on disk file exchanges for every request, it     
+becomes inefficient, especially for frequent get requests.                  
+                                                                            
+                                                                            
+                                                                            
+Building Your GUI                                                           
+=================                                                           
+                                                                            
+Using INI Files                                                             
+---------------                                                             
+Instead of constructing the entire GUI from your code, you can predefine    
+parts (or all) of it using an INI file. The easiest way to create one is    
+with the built-in WYSIWYG Design Editor.                                    
+                                                                            
+Start PeasyGUI without parameters. It will look for a file named            
+PeasyGUI.ini in the application root directory and load it. You can add or  
+reposition controls, resize them, and edit their properties in the table.   
+                                                                            
+When PeasyGUI is closed, it will create or update the INI file              
+automatically. The contents of this file (a sequence of new and set         
+requests) can also be sent to PeasyGUI over TCP, either as a single block   
+or as individual requests.                                                  
+                                                                            
+                                                                            
+Working with the Design Editor                                              
+------------------------------                                              
+The design editor is mostly self-explanatory, but some aspects of its       
+operation are slightly unusual. When you hover the mouse over a control,    
+blue squares appear at its corners and edges. These allow you to resize the 
+control. The blue square in the center allows you to move the control.      
+                                                                            
+Clicking any of the squares will show the control’s properties in the table 
+view. You can also click directly inside a control (not on the blue         
+squares) to just interact with it, for example to edit the text in a        
+TextBox or test selection behavior in a ListBox.                            
+                                                                            
+                                                                            
+Paths and Resources                                                         
+-------------------                                                         
+Wherever PeasyGUI accepts a path (for example, to icons, INI files, image   
+sources, or the exchange directory), you may use either absolute paths or   
+paths relative to the application root directory. So the folder that        
+contains bin/ on Linux and Windows (but is not inside it), or the folder    
+that contains PeasyGUI.app/ on macOS.                                       
+                                                                            
+                                                                            
+Controls and Properties                                                     
+=======================                                                     
+                                                                            
+Geometry                                                                    
+--------                                                                    
+The 4 numbers of the geometry represent left, top, width, height of the     
+control within the window.                                                  
+                                                                            
+ ┌──────────────────────────────┐                                           
+ │OOO        Window             │                                           
+ ├─────────────┬────────────────┤                                           
+ │             ▲                │                                           
+ │             │ Top            │                                           
+ │             ▼                │                                           
+ │        ┌────┴─────┐ ┬        │                                           
+ │  Left  │          │ ▲        │                                           
+ ├◄──────►┤    OK    │ │Height  │                                           
+ │        │          │ ▼        │                                           
+ │        └──────────┘ ┴        │                                           
+ │        ├◄────────►┤          │                                           
+ │           Width              │                                           
+ └──────────────────────────────┘                                           
+                                                                            
+For the Window itself, top and left represent the distances within your     
+primary display.                                                            
+                                                                            
+Visibility and Show Options                                                 
+---------------------------                                                 
+The Show property controls how a control is displayed and whether it can be 
+interacted with. It has four possible values:                               
+- Normal: The control is visible and fully interactive.                     
+- Disabled: The control is visible but cannot be interacted with using the  
+mouse or keyboard.                                                          
+- Invisible: The control is not visible.                                    
+- ToBeDeleted: Used only in Design mode. Controls set to this state will    
+not be saved to the INI file when PeasyGUI is closed.                       
+                                                                            
+Complete Property Reference                                                 
+---------------------------                                                 
+# Button
+  • Name:
+      Unique identifier for the control
+  • Type:
+      Control type (read-only)
+  • Geometry:
+      Left, top, width, height
+  • Events:
+      Events that can trigger notifications
+      Select any or none: Clicked
+  • Text:
+      Text displayed on the button
+  • Style:
+      CSS-style appearance using Qt setStyleSheet
+  • Show:
+      Visibility and interaction state
+      Select one: Normal, Disabled, Invisible, ToBeDeleted
+  • ToolTip:
+      Tooltip text shown when hovering the control
+
+# CheckBox
+  • Name:
+      Unique identifier for the control
+  • Type:
+      Control type (read-only)
+  • Geometry:
+      Left, top, width, height
+  • Events:
+      Events that can trigger notifications
+      Select any or none: StateChanged
+  • Text:
+      Text label shown beside the checkbox
+  • State:
+      Checkbox state
+      Select one: Checked, Unchecked
+  • Style:
+      CSS-style appearance using Qt setStyleSheet
+  • Show:
+      Visibility and interaction state
+      Select one: Normal, Disabled, Invisible, ToBeDeleted
+  • ToolTip:
+      Tooltip text shown when hovering the control
+
+# DropArea
+  • Name:
+      Unique identifier for the control
+  • Type:
+      Control type (read-only)
+  • Geometry:
+      Left, top, width, height
+  • Events:
+      Events that can trigger notifications
+      Select any or none: Dropped
+  • Text:
+      Text displayed inside the drop area
+  • EntirePaths:
+      List of last dropped file paths (not in Ini)
+  • DragStyle:
+      CSS-style appearance using Qt setStyleSheet
+  • Style:
+      CSS-style appearance using Qt setStyleSheet
+  • Show:
+      Visibility and interaction state
+      Select one: Normal, Disabled, Invisible, ToBeDeleted
+  • ToolTip:
+      Tooltip text shown when hovering the control
+
+# DropDown
+  • Name:
+      Unique identifier for the control
+  • Type:
+      Control type (read-only)
+  • Geometry:
+      Left, top, width, height
+  • Events:
+      Events that can trigger notifications
+      Select any or none: SelectionChanged
+  • EntireTexts:
+      All list entries
+  • Selected:
+      Index of currently selected item
+  • Style:
+      CSS-style appearance using Qt setStyleSheet
+  • Show:
+      Visibility and interaction state
+      Select one: Normal, Disabled, Invisible, ToBeDeleted
+  • ToolTip:
+      Tooltip text shown when hovering the control
+
+# ImageView
+  • Name:
+      Unique identifier for the control
+  • Type:
+      Control type (read-only)
+  • Geometry:
+      Left, top, width, height
+  • Events:
+      Events that can trigger notifications
+      Select any or none: ClickedAtPos
+  • Image:
+      Path to the image file
+  • Scaling:
+      Scaling factor; use 'AutoShrink' to fit automatically or specify a float value
+  • Opacity:
+      Transparency level: 1.0 = opaque, 0.5 = semi-transparent
+  • Offsets:
+      Offset in pixels from upper-left corner: left, top
+  • Dimensions:
+      Image dimensions in pixels: width, height (read-only, not in Ini)
+  • Style:
+      CSS-style appearance using Qt setStyleSheet
+  • Show:
+      Visibility and interaction state
+      Select one: Normal, Disabled, Invisible, ToBeDeleted
+  • ToolTip:
+      Tooltip text shown when hovering the control
+
+# Label
+  • Name:
+      Unique identifier for the control
+  • Type:
+      Control type (read-only)
+  • Geometry:
+      Left, top, width, height
+  • Text:
+      Text displayed on the label
+  • Style:
+      CSS-style appearance using Qt setStyleSheet
+  • Show:
+      Visibility and interaction state
+      Select one: Normal, Disabled, Invisible, ToBeDeleted
+  • ToolTip:
+      Tooltip text shown when hovering the control
+
+# ListBox
+  • Name:
+      Unique identifier for the control
+  • Type:
+      Control type (read-only)
+  • Geometry:
+      Left, top, width, height
+  • Events:
+      Events that can trigger notifications
+      Select any or none: Clicked, DoubleClicked, SelectionChanged
+  • EntireTexts:
+      All list entries
+  • MultiSelect:
+      Multiple selection enabled
+      Select one: True, False
+  • Selected:
+      Indices of selected rows
+  • Style:
+      CSS-style appearance using Qt setStyleSheet
+  • Show:
+      Visibility and interaction state
+      Select one: Normal, Disabled, Invisible, ToBeDeleted
+  • ToolTip:
+      Tooltip text shown when hovering the control
+
+# OpenButton
+  • Name:
+      Unique identifier for the control
+  • Type:
+      Control type (read-only)
+  • Geometry:
+      Left, top, width, height
+  • Events:
+      Events that can trigger notifications
+      Select any or none: Chosen
+  • Text:
+      Message shown in dialog on some operating systems
+  • Category:
+      Selection type: file path or directory
+      Select one: Path, Dir
+  • Extensions:
+      File extension filter for file selection
+  • Suggestion:
+      Default path suggested when dialog opens
+  • Path:
+      Last chosen file or directory path (not in Ini)
+  • Icon:
+      Optional custom icon path for the button
+  • Style:
+      CSS-style appearance using Qt setStyleSheet
+  • Show:
+      Visibility and interaction state
+      Select one: Normal, Disabled, Invisible, ToBeDeleted
+  • ToolTip:
+      Tooltip text shown when hovering the control
+
+# ProgressBar
+  • Name:
+      Unique identifier for the control
+  • Type:
+      Control type (read-only)
+  • Geometry:
+      Left, top, width, height
+  • Value:
+      Current value in percent
+  • Style:
+      CSS-style appearance using Qt setStyleSheet
+  • Show:
+      Visibility and interaction state
+      Select one: Normal, Disabled, Invisible, ToBeDeleted
+  • ToolTip:
+      Tooltip text shown when hovering the control
+
+# SaveButton
+  • Name:
+      Unique identifier for the control
+  • Type:
+      Control type (read-only)
+  • Geometry:
+      Left, top, width, height
+  • Events:
+      Events that can trigger notifications
+      Select any or none: Chosen
+  • Text:
+      Message shown in dialog on some operating systems
+  • Category:
+      Selection type: file path or directory
+      Select one: Path, Dir
+  • Extensions:
+      File extension filter for file selection
+  • Suggestion:
+      Default path suggested when dialog opens
+  • Path:
+      Last chosen file or directory path (not in Ini)
+  • Icon:
+      Optional custom icon path for the button
+  • Style:
+      CSS-style appearance using Qt setStyleSheet
+  • Show:
+      Visibility and interaction state
+      Select one: Normal, Disabled, Invisible, ToBeDeleted
+  • ToolTip:
+      Tooltip text shown when hovering the control
+
+# Slider
+  • Name:
+      Unique identifier for the control
+  • Type:
+      Control type (read-only)
+  • Geometry:
+      Left, top, width, height
+  • Events:
+      Events that can trigger notifications
+      Select any or none: Moved, Pressed, Released
+  • Value:
+      Current numeric value between Min and Max
+  • Min:
+      Minimum selectable value
+  • Max:
+      Maximum selectable value
+  • Orientation:
+      Orientation of the slider
+      Select one: Horizontal, Vertical
+  • Style:
+      CSS-style appearance using Qt setStyleSheet
+  • Show:
+      Visibility and interaction state
+      Select one: Normal, Disabled, Invisible, ToBeDeleted
+  • ToolTip:
+      Tooltip text shown when hovering the control
+
+# TextBox
+  • Name:
+      Unique identifier for the control
+  • Type:
+      Control type (read-only)
+  • Geometry:
+      Left, top, width, height
+  • Events:
+      Events that can trigger notifications
+      Select any or none: ReturnPressed
+  • MultiLine:
+      Multi-line input enabled
+      Select one: True, False
+  • Text:
+      Text content displayed
+  • Style:
+      CSS-style appearance using Qt setStyleSheet
+  • Show:
+      Visibility and interaction state
+      Select one: Normal, Disabled, Invisible, ToBeDeleted
+  • ToolTip:
+      Tooltip text shown when hovering the control
+
+# Window
+  • Name:
+      Unique identifier for the control
+  • Type:
+      Control type (read-only)
+  • Geometry:
+      Left, top, width, height
+  • Events:
+      Events that can trigger notifications
+      Select any or none: ClipboardChanged, Closed, Resized, KeyPressed
+  • Text:
+      Window title text
+  • Clipboard:
+      Text content of the system clipboard (not in Ini)
+  • AboutHeading:
+      Position of '?'-About-icon in Window (Linux/Windows only)
+      Select one: North, NorthEast, East, SouthEast, South, SouthWest, West, NorthWest
+  • MessageBoxNow:
+      Opens a message box with the given text; always read as '' (not in Ini)
+  • QuitNow:
+      Immediately quits the GUI if True (not in Ini)
+      Select one: True, False
+  • Icon:
+      Path to an icon for the GUI window
+  • Style:
+      CSS-style appearance using Qt setStyleSheet
