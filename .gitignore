@@ -27,6 +27,8 @@ dist/
 .vscode/
 .idea/
 *.iml
+CMakeLists.txt.user
+
 
 # SVN
 .svn/
