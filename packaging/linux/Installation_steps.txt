@@ -1,0 +1,15 @@
+Installation instructions for Linux
+===================================
+
+- Extract PeasyGUI TAR GZ file
+
+- Open the start_PeasyGUI.sh file in a Terminal by typing
+./start_PeasyGUI.sh
+
+- If you get a message (e.g. on Mint) containing 
+"xcb-cursor0 or libxcb-cursor0 is needed to load the Qt xcb platform plugin",
+you need to install a small package of ~40kB by typing
+apt install libxcb-cursor0
+
+- Open the start_PeasyGUI.sh again
+or any example by its start_example.sh 

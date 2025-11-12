@@ -1,0 +1,13 @@
+Installation instructions for macOS
+===================================
+
+- Drag PeasyGUI folder from DMG to Applications or Desktop
+
+- Open *dropped* folder (not the folder inside the DMG!)
+
+- Right click "Unlock.command" and "Open"
+
+- Press "Open" in dialog about unverified developer
+
+- Start PeasyGUI.app
+or any example by double click on its start_example.command 

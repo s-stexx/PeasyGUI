@@ -1,0 +1,33 @@
+# macOS
+.DS_Store
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# Python (falls verwendet)
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.egg-info/
+build/
+dist/
+
+# Logs, Backups, Temp
+*.log
+*.bak
+*.tmp
+*.swp
+*.swo
+~$*
+
+# IDEs
+.vscode/
+.idea/
+*.iml
+
+# SVN
+.svn/
+

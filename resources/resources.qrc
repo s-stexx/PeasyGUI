@@ -1,0 +1,19 @@
+<RCC>
+    <qresource prefix="/">
+        <file>checkbox.png</file>
+        <file>dropdown.png</file>
+        <file>imageview.png</file>
+        <file>label.png</file>
+        <file>listbox.png</file>
+        <file>open.png</file>
+        <file>pushbutton.png</file>
+        <file>resources.qrc</file>
+        <file>save.png</file>
+        <file>textbox.png</file>
+        <file>PixelRuler.png</file>
+        <file>CrossHairCursor.png</file>
+        <file>droparea.png</file>
+        <file>slider.png</file>
+        <file>progressbar.png</file>
+    </qresource>
+</RCC>

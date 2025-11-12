@@ -1,0 +1,10 @@
+Installation instructions for Windows
+=====================================
+
+- Extract PeasyGUI Zip file
+
+- Open the start_PeasyGUI.bat file
+
+- Press "Run" button in dialog about "Unknown Publisher"
+
+- Make your choice in the offered menu
